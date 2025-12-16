@@ -22,6 +22,8 @@ type Palette = {
 
 type Language = "en" | "es" | "fr" | "de" | "it";
 
+type FontOption = "Roboto" | "Helvetica" | "Lato" | "Georgia";
+
 /* ---------- Language Data ---------- */
 const LANGUAGES: { code: Language; name: string }[] = [
   { code: "en", name: "English" },
@@ -30,6 +32,8 @@ const LANGUAGES: { code: Language; name: string }[] = [
   { code: "de", name: "German" },
   { code: "it", name: "Italian" },
 ];
+
+const FONT_OPTIONS: FontOption[] = ["Roboto", "Helvetica", "Lato", "Georgia"];
 
 const TRANSLATIONS: Record<
   Language,
@@ -214,6 +218,7 @@ const NewsletterGenerator = () => {
   const [textHex, setTextHex] = useState<string>("#000000");
   const [bgOpacity, setBgOpacity] = useState<number>(1);
   const [language, setLanguage] = useState<Language>("en");
+  const [font, setFont] = useState<FontOption>("Roboto");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
   const handleGenerate = () => {
@@ -237,6 +242,7 @@ const NewsletterGenerator = () => {
     setBgHex(randomBg);
     setTextHex(randomText);
     setBgOpacity(parseFloat(randomOpacity));
+
     const palette = {
       bg: randomBg,
       text: randomText,
@@ -253,10 +259,12 @@ const NewsletterGenerator = () => {
   const handleCopy = async () => {
     if (!newsletter) return;
     const preview = document.querySelector("#newsletter-preview");
-    if (preview) {
-      await navigator.clipboard.writeText(preview.innerHTML);
-      showSuccess("Newsletter copied to clipboard!");
-    }
+    if (!preview) return;
+
+    // Wrap the inner HTML with a container that forces the selected font
+    const htmlToCopy = `<div style="font-family: ${font}, sans-serif;">${preview.innerHTML}</div>`;
+    await navigator.clipboard.writeText(htmlToCopy);
+    showSuccess(`Newsletter copied with ${font} font!`);
   };
 
   return (
@@ -267,10 +275,7 @@ const NewsletterGenerator = () => {
 
       <div className="max-w-xl mx-auto space-y-6">
         {/* Language selector */}
-        <Select
-          value={language}
-          onValueChange={(v) => setLanguage(v as Language)}
-        >
+        <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select language" />
           </SelectTrigger>
@@ -278,6 +283,20 @@ const NewsletterGenerator = () => {
             {LANGUAGES.map((lang) => (
               <SelectItem key={lang.code} value={lang.code}>
                 {lang.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Font selector */}
+        <Select value={font} onValueChange={(v) => setFont(v as FontOption)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select font" />
+          </SelectTrigger>
+          <SelectContent>
+            {FONT_OPTIONS.map((f) => (
+              <SelectItem key={f} value={f}>
+                {f}
               </SelectItem>
             ))}
           </SelectContent>
@@ -304,9 +323,7 @@ const NewsletterGenerator = () => {
 
         {/* Opacity slider */}
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium w-24">
-            Background opacity
-          </label>
+          <label className="text-sm font-medium w-24">Background opacity</label>
           <input
             type="range"
             min="0"
@@ -315,9 +332,7 @@ const NewsletterGenerator = () => {
             onChange={(e) => setBgOpacity(parseInt(e.target.value) / 100)}
             className="flex-1"
           />
-          <span className="w-12 text-right">
-            {Math.round(bgOpacity * 100)}%
-          </span>
+          <span className="w-12 text-right">{Math.round(bgOpacity * 100)}%</span>
         </div>
 
         <Button className="w-full" onClick={handleGenerate}>
@@ -340,6 +355,7 @@ const NewsletterGenerator = () => {
               <div
                 id="newsletter-preview"
                 className="relative z-10 space-y-4"
+                style={{ fontFamily: `${font}, sans-serif` }}
               >
                 {newsletter}
               </div>
