@@ -208,11 +208,25 @@ function generateNewsletter(
   );
 }
 
+/* ---------- Snowflake Background ---------- */
+const SnowBackground = () => {
+  const flakes = Array.from({ length: 30 });
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none flex flex-wrap justify-center items-center opacity-20">
+      {flakes.map((_, i) => (
+        <span key={i} className="text-4xl mx-2 my-2 select-none">
+          ❄️
+        </span>
+      ))}
+    </div>
+  );
+};
+
 /* ---------- Main Component ---------- */
 const NewsletterGenerator = () => {
   const [bgHex, setBgHex] = useState<string>("#ffffff");
   const [textHex, setTextHex] = useState<string>("#000000");
-  const [bgOpacity, setBgOpacity] = useState<number>(1); // fully opaque
+  const [bgOpacity, setBgOpacity] = useState<number>(1);
   const [language, setLanguage] = useState<Language>("en");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
@@ -233,7 +247,7 @@ const NewsletterGenerator = () => {
     const randomText = `#${Math.floor(Math.random() * 0xffffff)
       .toString(16)
       .padStart(6, "0")}`;
-    const randomOpacity = Math.random().toFixed(2); // 0‑1 string
+    const randomOpacity = Math.random().toFixed(2);
     setBgHex(randomBg);
     setTextHex(randomText);
     setBgOpacity(parseFloat(randomOpacity));
@@ -260,12 +274,15 @@ const NewsletterGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">
+    <div className="relative min-h-screen bg-background p-8">
+      {/* Snowflake background */}
+      <SnowBackground />
+
+      <h1 className="text-3xl font-bold text-center mb-8 z-10 relative">
         🎄 Merry Christmas Newsletter Generator 🎁
       </h1>
 
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto space-y-6 z-10 relative">
         {/* Language selector */}
         <Select
           value={language}
@@ -304,7 +321,9 @@ const NewsletterGenerator = () => {
 
         {/* Opacity slider */}
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium w-24">Background opacity</label>
+          <label className="text-sm font-medium w-24">
+            Background opacity
+          </label>
           <input
             type="range"
             min="0"
@@ -313,7 +332,9 @@ const NewsletterGenerator = () => {
             onChange={(e) => setBgOpacity(parseInt(e.target.value) / 100)}
             className="flex-1"
           />
-          <span className="w-12 text-right">{Math.round(bgOpacity * 100)}%</span>
+          <span className="w-12 text-right">
+            {Math.round(bgOpacity * 100)}%
+          </span>
         </div>
 
         <Button className="w-full" onClick={handleGenerate}>
