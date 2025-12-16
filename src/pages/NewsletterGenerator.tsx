@@ -212,7 +212,7 @@ function generateNewsletter(
 const NewsletterGenerator = () => {
   const [bgHex, setBgHex] = useState<string>("#ffffff");
   const [textHex, setTextHex] = useState<string>("#000000");
-  const [bgOpacity, setBgOpacity] = useState<number>(1); // fully opaque
+  const [bgOpacity, setBgOpacity] = useState<number>(1);
   const [language, setLanguage] = useState<Language>("en");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
@@ -233,7 +233,7 @@ const NewsletterGenerator = () => {
     const randomText = `#${Math.floor(Math.random() * 0xffffff)
       .toString(16)
       .padStart(6, "0")}`;
-    const randomOpacity = Math.random().toFixed(2); // 0‑1 string
+    const randomOpacity = Math.random().toFixed(2);
     setBgHex(randomBg);
     setTextHex(randomText);
     setBgOpacity(parseFloat(randomOpacity));
@@ -269,7 +269,7 @@ const NewsletterGenerator = () => {
         {/* Language selector */}
         <Select
           value={language}
-          onValueChange={(value) => setLanguage(value as Language)}
+          onValueChange={(v) => setLanguage(v as Language)}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select language" />
@@ -304,7 +304,9 @@ const NewsletterGenerator = () => {
 
         {/* Opacity slider */}
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium w-24">Background opacity</label>
+          <label className="text-sm font-medium w-24">
+            Background opacity
+          </label>
           <input
             type="range"
             min="0"
@@ -313,7 +315,9 @@ const NewsletterGenerator = () => {
             onChange={(e) => setBgOpacity(parseInt(e.target.value) / 100)}
             className="flex-1"
           />
-          <span className="w-12 text-right">{Math.round(bgOpacity * 100)}%</span>
+          <span className="w-12 text-right">
+            {Math.round(bgOpacity * 100)}%
+          </span>
         </div>
 
         <Button className="w-full" onClick={handleGenerate}>
@@ -325,8 +329,19 @@ const NewsletterGenerator = () => {
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Your Newsletter Preview
             </h2>
-            <div id="newsletter-preview" className="space-y-4">
-              {newsletter}
+            {/* Snowflake background wrapper */}
+            <div
+              id="newsletter-container"
+              className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-cover bg-center"
+            >
+              {/* Overlay to ensure readability */}
+              <div className="absolute inset-0 bg-white/70 rounded-lg" />
+              <div
+                id="newsletter-preview"
+                className="relative z-10 space-y-4"
+              >
+                {newsletter}
+              </div>
             </div>
 
             <Button
