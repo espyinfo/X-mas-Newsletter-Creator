@@ -24,6 +24,8 @@ type Language = "en" | "es" | "fr" | "de" | "it";
 
 type FontOption = "Roboto" | "Helvetica" | "Lato" | "Georgia";
 
+type ChapterStyleOption = "Normal" | "Bold" | "Italic" | "Underline";
+
 /* ---------- Language Data ---------- */
 const LANGUAGES: { code: Language; name: string }[] = [
   { code: "en", name: "English" },
@@ -34,6 +36,13 @@ const LANGUAGES: { code: Language; name: string }[] = [
 ];
 
 const FONT_OPTIONS: FontOption[] = ["Roboto", "Helvetica", "Lato", "Georgia"];
+
+const CHAPTER_STYLES: Record<ChapterStyleOption, string> = {
+  Normal: "",
+  Bold: "font-bold",
+  Italic: "italic",
+  Underline: "underline",
+};
 
 const TRANSLATIONS: Record<
   Language,
@@ -180,6 +189,7 @@ function generateNewsletter(
   palette: Palette,
   language: Language,
   accentClass: string,
+  chapterStyle: string,
 ) {
   const { greetings, bodies, closings } = TRANSLATIONS[language];
 
@@ -202,11 +212,11 @@ function generateNewsletter(
       style={{ backgroundColor: bgRgba, color: palette.text }}
     >
       <CardHeader>
-        <CardTitle className={headerStyle}>{greeting}</CardTitle>
+        <CardTitle className={`${headerStyle} ${chapterStyle}`}>{greeting}</CardTitle>
       </CardHeader>
       <CardContent className={bodyStyle}>
-        <p className="mb-4">{body}</p>
-        <p className="font-medium">{closing}</p>
+        <p className={`mb-4 ${chapterStyle}`}>{body}</p>
+        <p className={`font-medium ${chapterStyle}`}>{closing}</p>
       </CardContent>
     </Card>
   );
@@ -219,6 +229,7 @@ const NewsletterGenerator = () => {
   const [bgOpacity, setBgOpacity] = useState<number>(1);
   const [language, setLanguage] = useState<Language>("en");
   const [font, setFont] = useState<FontOption>("Roboto");
+  const [chapterStyle, setChapterStyle] = useState<ChapterStyleOption>("Normal");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
   const handleGenerate = () => {
@@ -228,7 +239,9 @@ const NewsletterGenerator = () => {
       "shadow-md",
       "rounded-lg",
     ]);
-    setNewsletter(generateNewsletter(palette, language, accentClass));
+    setNewsletter(
+      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
+    );
   };
 
   const handleRandomPalette = () => {
@@ -242,7 +255,6 @@ const NewsletterGenerator = () => {
     setBgHex(randomBg);
     setTextHex(randomText);
     setBgOpacity(parseFloat(randomOpacity));
-
     const palette = {
       bg: randomBg,
       text: randomText,
@@ -253,7 +265,9 @@ const NewsletterGenerator = () => {
       "shadow-md",
       "rounded-lg",
     ]);
-    setNewsletter(generateNewsletter(palette, language, accentClass));
+    setNewsletter(
+      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
+    );
   };
 
   const handleCopy = async () => {
@@ -261,7 +275,7 @@ const NewsletterGenerator = () => {
     const preview = document.querySelector("#newsletter-preview");
     if (!preview) return;
 
-    // Wrap the inner HTML with a container that forces the selected font
+    // Wrap copied HTML with selected font
     const htmlToCopy = `<div style="font-family: ${font}, sans-serif;">${preview.innerHTML}</div>`;
     await navigator.clipboard.writeText(htmlToCopy);
     showSuccess(`Newsletter copied with ${font} font!`);
@@ -297,6 +311,23 @@ const NewsletterGenerator = () => {
             {FONT_OPTIONS.map((f) => (
               <SelectItem key={f} value={f}>
                 {f}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Chapter style selector */}
+        <Select
+          value={chapterStyle}
+          onValueChange={(v) => setChapterStyle(v as ChapterStyleOption)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select chapter style" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(CHAPTER_STYLES).map((style) => (
+              <SelectItem key={style} value={style}>
+                {style}
               </SelectItem>
             ))}
           </SelectContent>
@@ -350,7 +381,7 @@ const NewsletterGenerator = () => {
               id="newsletter-container"
               className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center"
             >
-              {/* Light overlay for readability (30% opacity) */}
+              {/* Light overlay for readability */}
               <div className="absolute inset-0 bg-white/30 rounded-lg" />
               <div
                 id="newsletter-preview"
