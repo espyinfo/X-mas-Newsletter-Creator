@@ -191,13 +191,8 @@ function generateNewsletter(
   const body = randomItem(bodies);
   const closing = randomItem(closings);
 
-  const bgRgba = hexToRgba(palette.bg, palette.opacity);
-
   return (
-    <Card
-      className={`${accentClass} p-6`}
-      style={{ backgroundColor: bgRgba, color: palette.text }}
-    >
+    <Card className={`${accentClass} p-6`} style={{ color: palette.text }}>
       <CardHeader>
         <CardTitle className={headerStyle}>{greeting}</CardTitle>
       </CardHeader>
@@ -262,6 +257,8 @@ const NewsletterGenerator = () => {
     }
   };
 
+  const bgRgba = hexToRgba(bgHex, bgOpacity);
+
   return (
     <div className="min-h-screen bg-background p-8">
       <h1 className="text-3xl font-bold text-center mb-8">
@@ -270,10 +267,7 @@ const NewsletterGenerator = () => {
 
       <div className="max-w-xl mx-auto space-y-6">
         {/* Language selector */}
-        <Select
-          value={language}
-          onValueChange={(v) => setLanguage(v as Language)}
-        >
+        <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select language" />
           </SelectTrigger>
@@ -307,9 +301,7 @@ const NewsletterGenerator = () => {
 
         {/* Opacity slider */}
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium w-24">
-            Background opacity
-          </label>
+          <label className="text-sm font-medium w-24">Background opacity</label>
           <input
             type="range"
             min="0"
@@ -343,9 +335,12 @@ const NewsletterGenerator = () => {
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Your Newsletter Preview
             </h2>
-            <div className="relative overflow-hidden rounded-md border">
+            <div
+              className="relative overflow-hidden rounded-md border p-4"
+              style={{ backgroundColor: bgRgba }}
+            >
               {snowEnabled && <Snowfall count={80} />}
-              <div id="newsletter-preview" className="space-y-4 p-4">
+              <div id="newsletter-preview" className="relative space-y-4">
                 {newsletter}
               </div>
             </div>
