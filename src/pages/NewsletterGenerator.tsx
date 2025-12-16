@@ -17,9 +17,10 @@ import { showSuccess } from "@/utils/toast";
 type Palette = {
   bg: string; // background hex
   text: string; // text hex
+  opacity: number; // 0‑1 background opacity
 };
 
-type Language = "en" | "es" | "fr" | "de";
+type Language = "en" | "es" | "fr" | "de" | "it";
 
 /* ---------- Language Data ---------- */
 const LANGUAGES: { code: Language; name: string }[] = [
@@ -27,6 +28,7 @@ const LANGUAGES: { code: Language; name: string }[] = [
   { code: "es", name: "Spanish" },
   { code: "fr", name: "French" },
   { code: "de", name: "German" },
+  { code: "it", name: "Italian" },
 ];
 
 const TRANSLATIONS: Record<
@@ -129,11 +131,44 @@ const TRANSLATIONS: Record<
       "Frohe Feiertage, alle",
     ],
   },
+  it: {
+    greetings: [
+      "Buon Natale!",
+      "Auguri di Buone Feste!",
+      "Felici Festività!",
+      "Tanti Auguri di Natale!",
+      "Caldi Auguri Natalizi!",
+    ],
+    bodies: [
+      "Speriamo che questa stagione riempia il tuo cuore di gioia e la tua casa di amore.",
+      "Che le tue feste scintillino di momenti d'amore, risate e buona volontà.",
+      "Ti auguriamo una stagione festiva e un prospero Anno Nuovo.",
+      "Che la magia del Natale ti porti pace, felicità e momenti indimenticabili.",
+      "Un brindisi a una meravigliosa stagione natalizia circondata da amici e familiari.",
+    ],
+    closings: [
+      "Saluti, il Team",
+      "Cordiali saluti, i vostri amici",
+      "Con affetto natalizio, il Team",
+      "Auguri, il Team",
+      "Felici Festività a tutti",
+    ],
+  },
 };
 
 /* ---------- Helper ---------- */
 function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* Convert hex + opacity to rgba string */
+function hexToRgba(hex: string, opacity: number): string {
+  const clean = hex.replace("#", "");
+  const bigint = parseInt(clean, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
 /* ---------- Generate Newsletter ---------- */
@@ -155,10 +190,12 @@ function generateNewsletter(
   const body = randomItem(bodies);
   const closing = randomItem(closings);
 
+  const bgRgba = hexToRgba(palette.bg, palette.opacity);
+
   return (
     <Card
       className={`${accentClass} p-6`}
-      style={{ backgroundColor: palette.bg, color: palette.text }}
+      style={{ backgroundColor: bgRgba, color: palette.text }}
     >
       <CardHeader>
         <CardTitle className={headerStyle}>{greeting}</CardTitle>
@@ -175,11 +212,12 @@ function generateNewsletter(
 const NewsletterGenerator = () => {
   const [bgHex, setBgHex] = useState<string>("#ffffff");
   const [textHex, setTextHex] = useState<string>("#000000");
+  const [bgOpacity, setBgOpacity] = useState<number>(1); // fully opaque
   const [language, setLanguage] = useState<Language>("en");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
   const handleGenerate = () => {
-    const palette = { bg: bgHex, text: textHex };
+    const palette = { bg: bgHex, text: textHex, opacity: bgOpacity };
     const accentClass = randomItem([
       "border-l-4 border-gray-300 pl-4",
       "shadow-md",
@@ -195,10 +233,15 @@ const NewsletterGenerator = () => {
     const randomText = `#${Math.floor(Math.random() * 0xffffff)
       .toString(16)
       .padStart(6, "0")}`;
+    const randomOpacity = Math.random().toFixed(2); // 0‑1 string
     setBgHex(randomBg);
     setTextHex(randomText);
-    // Auto‑generate with the new colors
-    const palette = { bg: randomBg, text: randomText };
+    setBgOpacity(parseFloat(randomOpacity));
+    const palette = {
+      bg: randomBg,
+      text: randomText,
+      opacity: parseFloat(randomOpacity),
+    };
     const accentClass = randomItem([
       "border-l-4 border-gray-300 pl-4",
       "shadow-md",
@@ -241,7 +284,7 @@ const NewsletterGenerator = () => {
         </Select>
 
         {/* Hex color inputs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Input
             type="color"
             value={bgHex}
@@ -257,6 +300,20 @@ const NewsletterGenerator = () => {
           <Button variant="outline" onClick={handleRandomPalette}>
             Random Palette
           </Button>
+        </div>
+
+        {/* Opacity slider */}
+        <div className="flex items-center space-x-4">
+          <label className="text-sm font-medium w-24">Background opacity</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={bgOpacity * 100}
+            onChange={(e) => setBgOpacity(parseInt(e.target.value) / 100)}
+            className="flex-1"
+          />
+          <span className="w-12 text-right">{Math.round(bgOpacity * 100)}%</span>
         </div>
 
         <Button className="w-full" onClick={handleGenerate}>
