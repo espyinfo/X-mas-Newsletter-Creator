@@ -10,6 +10,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { showSuccess } from "@/utils/toast";
 
 type Palette = {
   name: string;
@@ -59,11 +60,7 @@ function generateNewsletter(palette: Palette) {
     "text-4xl font-extrabold",
     "text-2xl font-semibold",
   ]);
-  const bodyStyle = randomItem([
-    "text-base",
-    "text-lg",
-    "text-sm",
-  ]);
+  const bodyStyle = randomItem(["text-base", "text-lg", "text-sm"]);
   const accentClass = randomItem([
     "border-l-4 border-gray-300 pl-4",
     "shadow-md",
@@ -95,6 +92,26 @@ const NewsletterGenerator = () => {
     setNewsletter(generateNewsletter(selectedPalette));
   };
 
+  const handleRandomPalette = () => {
+    const randomPal = randomItem(PALETTES);
+    setSelectedPalette(randomPal);
+    setNewsletter(generateNewsletter(randomPal));
+  };
+
+  const handleCopy = async () => {
+    if (!newsletter) return;
+    const container = document.createElement("div");
+    // Render the newsletter React node to static HTML
+    // This is a simple approach: use innerHTML from the rendered element
+    // Since the newsletter node is already rendered in the DOM, we can
+    // copy its outerHTML directly.
+    const preview = document.querySelector("#newsletter-preview");
+    if (preview) {
+      await navigator.clipboard.writeText(preview.innerHTML);
+      showSuccess("Newsletter copied to clipboard!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <h1 className="text-3xl font-bold text-center mb-8">
@@ -102,24 +119,30 @@ const NewsletterGenerator = () => {
       </h1>
 
       <div className="max-w-xl mx-auto space-y-6">
-        <Select
-          value={selectedPalette.name}
-          onValueChange={(value) => {
-            const pal = PALETTES.find((p) => p.name === value);
-            if (pal) setSelectedPalette(pal);
-          }}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select color palette" />
-          </SelectTrigger>
-          <SelectContent>
-            {PALETTES.map((pal) => (
-              <SelectItem key={pal.name} value={pal.name}>
-                {pal.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select
+            value={selectedPalette.name}
+            onValueChange={(value) => {
+              const pal = PALETTES.find((p) => p.name === value);
+              if (pal) setSelectedPalette(pal);
+            }}
+          >
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Select color palette" />
+            </SelectTrigger>
+            <SelectContent>
+              {PALETTES.map((pal) => (
+                <SelectItem key={pal.name} value={pal.name}>
+                  {pal.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" onClick={handleRandomPalette}>
+            Random Palette
+          </Button>
+        </div>
 
         <Button className="w-full" onClick={handleGenerate}>
           Generate Newsletter
@@ -130,7 +153,17 @@ const NewsletterGenerator = () => {
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Your Newsletter Preview
             </h2>
-            {newsletter}
+            <div id="newsletter-preview" className="space-y-4">
+              {newsletter}
+            </div>
+
+            <Button
+              variant="secondary"
+              className="mt-4 w-full"
+              onClick={handleCopy}
+            >
+              Copy HTML to Clipboard
+            </Button>
           </div>
         )}
       </div>
