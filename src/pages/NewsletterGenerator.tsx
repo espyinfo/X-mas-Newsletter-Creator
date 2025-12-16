@@ -333,10 +333,10 @@ const NewsletterGenerator = () => {
             {/* Snowflake background wrapper */}
             <div
               id="newsletter-container"
-              className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-cover bg-center"
+              className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center"
             >
-              {/* Semi‑transparent overlay for readability */}
-              <div className="absolute inset-0 bg-white/70 rounded-lg" />
+              {/* Light overlay for readability (30% opacity) */}
+              <div className="absolute inset-0 bg-white/30 rounded-lg" />
               <div
                 id="newsletter-preview"
                 className="relative z-10 space-y-4"
