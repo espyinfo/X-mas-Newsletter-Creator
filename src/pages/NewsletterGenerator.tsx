@@ -212,7 +212,7 @@ function generateNewsletter(
 const NewsletterGenerator = () => {
   const [bgHex, setBgHex] = useState<string>("#ffffff");
   const [textHex, setTextHex] = useState<string>("#000000");
-  const [bgOpacity, setBgOpacity] = useState<number>(1);
+  const [bgOpacity, setBgOpacity] = useState<number>(1); // fully opaque
   const [language, setLanguage] = useState<Language>("en");
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
@@ -233,7 +233,7 @@ const NewsletterGenerator = () => {
     const randomText = `#${Math.floor(Math.random() * 0xffffff)
       .toString(16)
       .padStart(6, "0")}`;
-    const randomOpacity = Math.random().toFixed(2);
+    const randomOpacity = Math.random().toFixed(2); // 0‑1 string
     setBgHex(randomBg);
     setTextHex(randomText);
     setBgOpacity(parseFloat(randomOpacity));
@@ -260,7 +260,7 @@ const NewsletterGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8 snowflakes">
+    <div className="min-h-screen bg-background p-8">
       <h1 className="text-3xl font-bold text-center mb-8">
         🎄 Merry Christmas Newsletter Generator 🎁
       </h1>
