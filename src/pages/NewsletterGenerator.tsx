@@ -329,12 +329,13 @@ const NewsletterGenerator = () => {
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Your Newsletter Preview
             </h2>
+
             {/* Snowflake background wrapper */}
             <div
               id="newsletter-container"
               className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-cover bg-center"
             >
-              {/* Overlay to ensure readability */}
+              {/* Semi‑transparent overlay for readability */}
               <div className="absolute inset-0 bg-white/70 rounded-lg" />
               <div
                 id="newsletter-preview"
