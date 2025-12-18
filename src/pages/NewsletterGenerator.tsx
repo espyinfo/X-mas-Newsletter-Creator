@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,6 +31,16 @@ type Language = "en" | "es" | "fr" | "de" | "it";
 type FontOption = "Roboto" | "Helvetica" | "Lato" | "Georgia" | "Arial" | "Times New Roman";
 
 type ChapterStyleOption = "Normal" | "Bold" | "Italic" | "Underline";
+
+type ChristmasElement = {
+  id: number;
+  type: "snowflake" | "ornament" | "star";
+  left: number;
+  top: number;
+  size: number;
+  speed: number;
+  opacity: number;
+};
 
 /* ---------- Language Data ---------- */
 const LANGUAGES: { code: Language; name: string }[] = [
@@ -190,12 +200,26 @@ function hexToRgba(hex: string, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
+/* Generate random Christmas elements */
+function generateChristmasElements(count: number): ChristmasElement[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    type: randomItem(["snowflake", "ornament", "star"] as const),
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    size: Math.random() * 20 + 10,
+    speed: Math.random() * 3 + 1,
+    opacity: Math.random() * 0.7 + 0.3,
+  }));
+}
+
 /* ---------- Generate Newsletter ---------- */
 function generateNewsletter(
   palette: Palette,
   language: Language,
   accentClass: string,
   chapterStyle: string,
+  showElements: boolean,
 ) {
   const { greetings, bodies, closings } = TRANSLATIONS[language];
 
@@ -212,19 +236,47 @@ function generateNewsletter(
 
   const bgRgba = hexToRgba(palette.bg, palette.opacity);
 
+  // Generate Christmas elements if enabled
+  const christmasElements = showElements ? generateChristmasElements(15) : [];
+
   return (
-    <Card
-      className={`${accentClass} p-6 border-0 shadow-lg`}
-      style={{ backgroundColor: bgRgba, color: palette.text }}
-    >
-      <CardHeader className="p-0 mb-4">
-        <CardTitle className={`${headerStyle} ${chapterStyle}`}>{greeting}</CardTitle>
-      </CardHeader>
-      <CardContent className={`p-0 ${bodyStyle}`}>
-        <p className={`mb-4 ${chapterStyle}`}>{body}</p>
-        <p className={`font-medium ${chapterStyle}`}>{closing}</p>
-      </CardContent>
-    </Card>
+    <div className="relative w-full">
+      {/* Animated Christmas Elements */}
+      {showElements && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {christmasElements.map((element) => (
+            <div
+              key={element.id}
+              className={`absolute animate-float-${element.type}`}
+              style={{
+                left: `${element.left}%`,
+                top: `${element.top}%`,
+                fontSize: `${element.size}px`,
+                opacity: element.opacity,
+                animationDuration: `${element.speed * 5}s`,
+              }}
+            >
+              {element.type === "snowflake" && "❄"}
+              {element.type === "ornament" && "🔴"}
+              {element.type === "star" && "⭐"}
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <Card
+        className={`${accentClass} p-6 border-0 shadow-lg relative z-10`}
+        style={{ backgroundColor: bgRgba, color: palette.text }}
+      >
+        <CardHeader className="p-0 mb-4">
+          <CardTitle className={`${headerStyle} ${chapterStyle}`}>{greeting}</CardTitle>
+        </CardHeader>
+        <CardContent className={`p-0 ${bodyStyle}`}>
+          <p className={`mb-4 ${chapterStyle}`}>{body}</p>
+          <p className={`font-medium ${chapterStyle}`}>{closing}</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -236,6 +288,7 @@ const NewsletterGenerator = () => {
   const [language, setLanguage] = useState<Language>("en");
   const [font, setFont] = useState<FontOption>("Roboto");
   const [chapterStyle, setChapterStyle] = useState<ChapterStyleOption>("Normal");
+  const [showElements, setShowElements] = useState<boolean>(true);
   const [newsletter, setNewsletter] = useState<React.ReactNode>(null);
 
   const handleGenerate = () => {
@@ -247,7 +300,7 @@ const NewsletterGenerator = () => {
       "bg-white/30 backdrop-blur-sm",
     ]);
     setNewsletter(
-      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
+      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle], showElements)
     );
   };
 
@@ -274,7 +327,7 @@ const NewsletterGenerator = () => {
       "bg-white/30 backdrop-blur-sm",
     ]);
     setNewsletter(
-      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
+      generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle], showElements)
     );
   };
 
@@ -288,6 +341,47 @@ const NewsletterGenerator = () => {
     await navigator.clipboard.writeText(htmlToCopy);
     showSuccess(`Newsletter copied with ${font} font!`);
   };
+
+  // Add CSS for animations
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes float-snowflake {
+        0% { transform: translateY(0) translateX(0); opacity: 0.7; }
+        50% { transform: translateY(-20px) translateX(10px); }
+        100% { transform: translateY(-100px) translateX(-10px); opacity: 0; }
+      }
+      
+      @keyframes float-ornament {
+        0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+        50% { transform: translateY(-30px) rotate(180deg); }
+        100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+      }
+      
+      @keyframes float-star {
+        0% { transform: translateY(0) scale(1); opacity: 0.7; }
+        50% { transform: translateY(-25px) scale(1.2); }
+        100% { transform: translateY(-110px) scale(0.8); opacity: 0; }
+      }
+      
+      .animate-float-snowflake {
+        animation: float-snowflake linear infinite;
+      }
+      
+      .animate-float-ornament {
+        animation: float-ornament linear infinite;
+      }
+      
+      .animate-float-star {
+        animation: float-star linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50 p-4 md:p-8">
@@ -416,6 +510,19 @@ const NewsletterGenerator = () => {
                     />
                   </div>
                   
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="show-elements"
+                      checked={showElements}
+                      onChange={(e) => setShowElements(e.target.checked)}
+                      className="h-4 w-4 text-red-600 rounded"
+                    />
+                    <Label htmlFor="show-elements" className="text-sm font-medium">
+                      Show Christmas Elements
+                    </Label>
+                  </div>
+                  
                   <Button 
                     variant="outline" 
                     onClick={handleRandomPalette}
@@ -492,7 +599,7 @@ const NewsletterGenerator = () => {
                   <div className="space-y-6">
                     <div
                       id="newsletter-container"
-                      className="rounded-xl p-6 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center min-h-[400px] flex items-center justify-center"
+                      className="rounded-xl p-6 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center min-h-[400px] flex items-center justify-center relative overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-white/20 rounded-xl" />
                       <div
