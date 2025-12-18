@@ -10,7 +10,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Copy, Sparkles, Palette, Type, Languages } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
 /* ---------- Types ---------- */
@@ -22,7 +28,7 @@ type Palette = {
 
 type Language = "en" | "es" | "fr" | "de" | "it";
 
-type FontOption = "Roboto" | "Helvetica" | "Lato" | "Georgia";
+type FontOption = "Roboto" | "Helvetica" | "Lato" | "Georgia" | "Arial" | "Times New Roman";
 
 type ChapterStyleOption = "Normal" | "Bold" | "Italic" | "Underline";
 
@@ -35,7 +41,7 @@ const LANGUAGES: { code: Language; name: string }[] = [
   { code: "it", name: "Italian" },
 ];
 
-const FONT_OPTIONS: FontOption[] = ["Roboto", "Helvetica", "Lato", "Georgia"];
+const FONT_OPTIONS: FontOption[] = ["Roboto", "Helvetica", "Lato", "Georgia", "Arial", "Times New Roman"];
 
 const CHAPTER_STYLES: Record<ChapterStyleOption, string> = {
   Normal: "",
@@ -162,7 +168,7 @@ const TRANSLATIONS: Record<
     closings: [
       "Saluti, il Team",
       "Cordiali saluti, i vostri amici",
-      "Con affetto natalizio, il Team",
+      "Con affetto natale, il Team",
       "Auguri, il Team",
       "Felici Festività a tutti",
     ],
@@ -208,13 +214,13 @@ function generateNewsletter(
 
   return (
     <Card
-      className={`${accentClass} p-6`}
+      className={`${accentClass} p-6 border-0 shadow-lg`}
       style={{ backgroundColor: bgRgba, color: palette.text }}
     >
-      <CardHeader>
+      <CardHeader className="p-0 mb-4">
         <CardTitle className={`${headerStyle} ${chapterStyle}`}>{greeting}</CardTitle>
       </CardHeader>
-      <CardContent className={bodyStyle}>
+      <CardContent className={`p-0 ${bodyStyle}`}>
         <p className={`mb-4 ${chapterStyle}`}>{body}</p>
         <p className={`font-medium ${chapterStyle}`}>{closing}</p>
       </CardContent>
@@ -235,9 +241,10 @@ const NewsletterGenerator = () => {
   const handleGenerate = () => {
     const palette = { bg: bgHex, text: textHex, opacity: bgOpacity };
     const accentClass = randomItem([
-      "border-l-4 border-gray-300 pl-4",
-      "shadow-md",
-      "rounded-lg",
+      "border-l-4 border-red-500 pl-4",
+      "border-2 border-dashed border-green-500",
+      "shadow-lg rounded-xl",
+      "bg-white/30 backdrop-blur-sm",
     ]);
     setNewsletter(
       generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
@@ -261,9 +268,10 @@ const NewsletterGenerator = () => {
       opacity: parseFloat(randomOpacity),
     };
     const accentClass = randomItem([
-      "border-l-4 border-gray-300 pl-4",
-      "shadow-md",
-      "rounded-lg",
+      "border-l-4 border-red-500 pl-4",
+      "border-2 border-dashed border-green-500",
+      "shadow-lg rounded-xl",
+      "bg-white/30 backdrop-blur-sm",
     ]);
     setNewsletter(
       generateNewsletter(palette, language, accentClass, CHAPTER_STYLES[chapterStyle])
@@ -282,125 +290,244 @@ const NewsletterGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        🎄 Merry Christmas Newsletter Generator 🎁
-      </h1>
-
-      <div className="max-w-xl mx-auto space-y-6">
-        {/* Language selector */}
-        <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select language" />
-          </SelectTrigger>
-          <SelectContent>
-            {LANGUAGES.map((lang) => (
-              <SelectItem key={lang.code} value={lang.code}>
-                {lang.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Font selector */}
-        <Select value={font} onValueChange={(v) => setFont(v as FontOption)}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select font" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_OPTIONS.map((f) => (
-              <SelectItem key={f} value={f}>
-                {f}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Chapter style selector */}
-        <Select
-          value={chapterStyle}
-          onValueChange={(v) => setChapterStyle(v as ChapterStyleOption)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select chapter style" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(CHAPTER_STYLES).map((style) => (
-              <SelectItem key={style} value={style}>
-                {style}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Hex color inputs */}
-        <div className="flex gap-2 items-center">
-          <Input
-            type="color"
-            value={bgHex}
-            onChange={(e) => setBgHex(e.target.value)}
-            aria-label="Background color"
-          />
-          <Input
-            type="color"
-            value={textHex}
-            onChange={(e) => setTextHex(e.target.value)}
-            aria-label="Text color"
-          />
-          <Button variant="outline" onClick={handleRandomPalette}>
-            Random Palette
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent mb-4">
+            🎄 Christmas Newsletter Generator 🎁
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Create beautiful, festive newsletters in seconds. Customize colors, fonts, and content to match your style.
+          </p>
         </div>
 
-        {/* Opacity slider */}
-        <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium w-24">Background opacity</label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={bgOpacity * 100}
-            onChange={(e) => setBgOpacity(parseInt(e.target.value) / 100)}
-            className="flex-1"
-          />
-          <span className="w-12 text-right">{Math.round(bgOpacity * 100)}%</span>
-        </div>
-
-        <Button className="w-full" onClick={handleGenerate}>
-          Generate Newsletter
-        </Button>
-
-        {newsletter && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-4 text-center">
-              Your Newsletter Preview
-            </h2>
-
-            {/* Snowflake background wrapper */}
-            <div
-              id="newsletter-container"
-              className="relative rounded-lg p-4 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center"
-            >
-              {/* Light overlay for readability */}
-              <div className="absolute inset-0 bg-white/30 rounded-lg" />
-              <div
-                id="newsletter-preview"
-                className="relative z-10 space-y-4"
-                style={{ fontFamily: `${font}, sans-serif` }}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Controls Panel */}
+          <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm border-red-100 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-red-500" />
+                Customization Options
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Tabs defaultValue="language" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="language" className="flex items-center gap-2">
+                    <Languages className="h-4 w-4" />
+                    <span className="hidden sm:inline">Language</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="style" className="flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    <span className="hidden sm:inline">Style</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="font" className="flex items-center gap-2">
+                    <Type className="h-4 w-4" />
+                    <span className="hidden sm:inline">Font</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="language" className="space-y-4 mt-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Select Language</Label>
+                    <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.map((lang) => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <Label className="text-sm font-medium mb-2 block">Chapter Style</Label>
+                    <Select
+                      value={chapterStyle}
+                      onValueChange={(v) => setChapterStyle(v as ChapterStyleOption)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select style" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(CHAPTER_STYLES).map((style) => (
+                          <SelectItem key={style} value={style}>
+                            {style}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="style" className="space-y-4 mt-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Background Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={bgHex}
+                        onChange={(e) => setBgHex(e.target.value)}
+                        className="w-16 h-10 p-1 cursor-pointer"
+                        aria-label="Background color"
+                      />
+                      <Input
+                        type="text"
+                        value={bgHex}
+                        onChange={(e) => setBgHex(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Text Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={textHex}
+                        onChange={(e) => setTextHex(e.target.value)}
+                        className="w-16 h-10 p-1 cursor-pointer"
+                        aria-label="Text color"
+                      />
+                      <Input
+                        type="text"
+                        value={textHex}
+                        onChange={(e) => setTextHex(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Background Opacity: {Math.round(bgOpacity * 100)}%
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={[bgOpacity * 100]}
+                      onValueChange={(value) => setBgOpacity(value[0] / 100)}
+                    />
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRandomPalette}
+                    className="w-full border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    Randomize Colors
+                  </Button>
+                </TabsContent>
+                
+                <TabsContent value="font" className="space-y-4 mt-4">
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">Select Font</Label>
+                    <Select value={font} onValueChange={(v) => setFont(v as FontOption)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select font" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FONT_OPTIONS.map((f) => (
+                          <SelectItem key={f} value={f} style={{ fontFamily: f }}>
+                            {f}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <Label className="text-sm font-medium mb-2 block">Preview</Label>
+                    <div 
+                      className="p-4 rounded-lg border bg-white"
+                      style={{ fontFamily: font }}
+                    >
+                      <p className="text-sm">This is how your font will look in the newsletter.</p>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
+              <Separator />
+              
+              <Button 
+                className="w-full bg-gradient-to-r from-red-500 to-green-600 hover:from-red-600 hover:to-green-700"
+                onClick={handleGenerate}
               >
-                {newsletter}
-              </div>
-            </div>
-
-            <Button
-              variant="secondary"
-              className="mt-4 w-full"
-              onClick={handleCopy}
-            >
-              Copy HTML to Clipboard
-            </Button>
+                Generate Newsletter
+              </Button>
+            </CardContent>
+          </Card>
+          
+          {/* Preview Panel */}
+          <div className="lg:col-span-2">
+            <Card className="h-full bg-white/80 backdrop-blur-sm border-green-100 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-green-500" />
+                    Newsletter Preview
+                  </span>
+                  {newsletter && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleCopy}
+                      className="flex items-center gap-2 border-green-200 text-green-600 hover:bg-green-50"
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copy HTML
+                    </Button>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {newsletter ? (
+                  <div className="space-y-6">
+                    <div
+                      id="newsletter-container"
+                      className="rounded-xl p-6 bg-[url('/snowflakes.png')] bg-repeat bg-cover bg-center min-h-[400px] flex items-center justify-center"
+                    >
+                      <div className="absolute inset-0 bg-white/20 rounded-xl" />
+                      <div
+                        id="newsletter-preview"
+                        className="relative z-10 w-full max-w-2xl"
+                        style={{ fontFamily: `${font}, sans-serif` }}
+                      >
+                        {newsletter}
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <h3 className="font-medium text-blue-800 mb-2">How to use:</h3>
+                      <p className="text-sm text-blue-700">
+                        Click "Copy HTML" to copy the newsletter code. You can then paste it into your email marketing tool, 
+                        website, or CMS. The styling will be preserved when you paste it.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-96 text-center p-8 bg-gradient-to-br from-red-50 to-green-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <Sparkles className="h-12 w-12 text-red-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Your Newsletter Awaits</h3>
+                    <p className="text-gray-500 max-w-md">
+                      Customize your options and click "Generate Newsletter" to create your festive holiday message.
+                    </p>
+                    <Badge variant="secondary" className="mt-4">
+                      Pro Tip: Try the random color button for festive combinations!
+                    </Badge>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
